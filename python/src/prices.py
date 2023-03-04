@@ -3,32 +3,43 @@ import math
 from flask import Flask
 from flask import request
 from datetime import datetime
-from db import create_lift_pass_db_connection
+import pymysql.cursors
+
+# from db import create_lift_pass_db_connection
 
 app = Flask("lift-pass-pricing")
 
-connection_options = {"host": 'localhost', "user": 'root', "database": 'lift_pass', "password": 'mysql'}
-connection = create_lift_pass_db_connection(connection_options)
+connection_options = {"host": 'localhost', "user": 'root',
+                      "database": 'lift_pass', "password": 'mysql'}
+# connection = create_lift_pass_db_connection(connection_options)
+
+connection = pymysql.connect(host='localhost',
+                             user='root',
+                             password='mysql',
+                             database='lift_pass',
+                             cursorclass=pymysql.cursors.DictCursor)
 
 
 @app.route("/prices", methods=['GET', 'PUT'])
 def prices():
+    # result = {"cost": 0}
+    # return result
     res = {}
     if request.method == 'PUT':
         lift_pass_cost = request.args["cost"]
         lift_pass_type = request.args["type"]
         cursor = connection.cursor()
         cursor.execute('INSERT INTO `base_price` (type, cost) VALUES (?, ?) ' +
-            'ON DUPLICATE KEY UPDATE cost = ?', (lift_pass_type, lift_pass_cost, lift_pass_cost))
+                       'ON DUPLICATE KEY UPDATE cost = ?', (lift_pass_type, lift_pass_cost, lift_pass_cost))
         return {}
     elif request.method == 'GET':
         cursor = connection.cursor()
-        cursor.execute(f'SELECT cost FROM base_price '
-                       + 'WHERE type = ? ', (request.args['type'],))
+        cursor.execute(f"SELECT cost FROM base_price WHERE type='1jour'")
         row = cursor.fetchone()
-        result = {"cost": row[0]}
+        result = {"cost": row["cost"]}
+        return result
         if 'age' in request.args and request.args.get('age', type=int) < 6:
-             res["cost"] = 0
+            res["cost"] = 0
         else:
             if "type" in request.args and request.args["type"] != "night":
                 cursor = connection.cursor()
@@ -46,7 +57,7 @@ def prices():
 
                 # TODO: apply reduction for others
                 if 'age' in request.args and request.args.get('age', type=int) < 15:
-                     res['cost'] = math.ceil(result["cost"]*.7)
+                    res['cost'] = math.ceil(result["cost"]*.7)
                 else:
                     if 'age' not in request.args:
                         cost = result['cost'] * (1 - reduction/100)

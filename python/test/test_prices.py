@@ -3,6 +3,7 @@ import multiprocessing
 import pytest
 import requests
 from datetime import datetime
+import time
 
 from prices import app
 
@@ -18,10 +19,13 @@ def lift_pass_pricing_app():
     """ starts the lift pass pricing flask app running on localhost """
     p = multiprocessing.Process(target=server, args=(TEST_PORT,))
     p.start()
+    # time.sleep(1)
     yield f"http://127.0.0.1:{TEST_PORT}"
+    # time.sleep(1)
     p.terminate()
 
 
 def test_something(lift_pass_pricing_app):
-    response = requests.get(lift_pass_pricing_app + "/prices", params={'type': '1jour'})
+    response = requests.get(lift_pass_pricing_app +
+                            "/prices", params={'type': '1jour'})
     assert response.json() == {'cost': 35}
