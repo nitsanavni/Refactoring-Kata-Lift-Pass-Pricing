@@ -1,12 +1,12 @@
 import { inspect } from "bun";
-import { expect, test, beforeAll, afterAll } from "bun:test";
+import { test, beforeAll, afterAll } from "bun:test";
 import { approval as makeApproval } from "./approvals.js";
+import { product as allCombinations } from "./product.js";
 import { driver } from "./prices.e2e.driver.js";
-import { product } from "./product.js";
 
 const port = +(process.env.PORT || "3000");
 
-const app = driver(port);
+const app = driver({ port });
 
 beforeAll(async () => {
     await app.start();
@@ -19,7 +19,9 @@ afterAll(() => {
 test("coverage", async () => {
     const approval = makeApproval("e2e-coverage");
 
-    for (const [type] of product(["1jour", "night"])) {
+    const types = ["1jour", "night"];
+
+    for (const [type] of allCombinations(types)) {
         approval.add(inspect(await app.getPrices({ type })));
     }
 

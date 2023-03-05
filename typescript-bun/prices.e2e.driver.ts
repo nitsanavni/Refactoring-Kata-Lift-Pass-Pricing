@@ -1,7 +1,7 @@
 import { spawn, Subprocess } from "bun";
 import pRetry from "p-retry";
 
-export const driver = (port = 3000) => {
+export const driver = ({ port = 3000 }) => {
     let server: Subprocess;
 
     const start = async () => {
