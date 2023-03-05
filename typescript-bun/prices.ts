@@ -1,12 +1,10 @@
 import mysql from "mysql2/promise";
 
-const connectionOptions = {
-    host: "localhost",
+const connection = await mysql.createConnection({
     user: "root",
     database: "lift_pass",
     password: "mysql",
-};
-const connection = await mysql.createConnection(connectionOptions);
+});
 
 Bun.serve({
     async fetch(req) {
@@ -118,7 +116,9 @@ Bun.serve({
             }
         }
 
-        return new Response("only `GET` or `PUT` allowed", { status: 404 });
+        return new Response(JSON.stringify("only `GET` or `PUT` allowed"), {
+            status: 404,
+        });
     },
     error(error: Error) {
         return new Response(`<pre>${error.message}</pre>`, {

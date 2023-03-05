@@ -6,8 +6,8 @@ export const driver = ({ port = 3000 }) => {
 
     const start = async () => {
         server = spawn({
-            cmd: ["bun", "prices.ts"],
-            env: { PORT: port },
+            cmd: ["timeout", "2", "bun", "prices.ts"],
+            env: { PORT: port, ...process.env },
         });
         await pRetry(() => fetch(`localhost:${port}/prices?type=1jour`), {
             minTimeout: 30,
@@ -19,8 +19,22 @@ export const driver = ({ port = 3000 }) => {
 
     const kill = () => server.kill();
 
-    const getPrices = async ({ type }: { type: string }) =>
-        (await fetch(`localhost:${port}/prices?type=${type}`)).json();
+    const getPrices = async ({
+        type,
+        age,
+        date,
+    }: {
+        type: string;
+        age?: number;
+        date?: string;
+    }) =>
+        (
+            await fetch(
+                `localhost:${port}/prices?type=${type}${
+                    age != undefined ? `&age=${age}` : ""
+                }${date ? `&date=${date}` : ""}`
+            )
+        ).json();
 
     return { start, kill, getPrices };
 };
