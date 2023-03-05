@@ -1,3 +1,4 @@
+import assert from "assert";
 import { file, inspect, write } from "bun";
 import { expect } from "bun:test";
 import { EOL } from "os";
