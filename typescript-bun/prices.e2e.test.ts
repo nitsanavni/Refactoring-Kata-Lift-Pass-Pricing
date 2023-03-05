@@ -1,5 +1,6 @@
+import { inspect } from "bun";
 import { expect, test, beforeAll, afterAll } from "bun:test";
-import { approval } from "./approvals.js";
+import { approval as makeApproval } from "./approvals.js";
 import { driver } from "./prices.e2e.driver.js";
 
 const port = +(process.env.PORT || "3000");
@@ -14,8 +15,14 @@ afterAll(() => {
     app.kill();
 });
 
-test("does something", async () => {
-    expect(await app.getPrices({ type: "1jour" })).toEqual({ cost: 35 });
+test("coverage", async () => {
+    const approval = makeApproval("e2e-coverage");
 
-    await approval("hello").verify();
+    approval.add(inspect(await app.getPrices({ type: "1jour" })));
+
+    if (process.env.UPDATE) {
+        await approval.update();
+    } else {
+        await approval.verify();
+    }
 });
