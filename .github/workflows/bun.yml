@@ -18,3 +18,8 @@ jobs:
 
             - name: Bun is on the PATH
               run: bun
+
+            - name: mysql
+              run: |
+                  runLocalDatabase.sh
+                  (timeout 10 docker logs -f mariadb 2>&1 &) | grep -m 1 'ready for connections'
