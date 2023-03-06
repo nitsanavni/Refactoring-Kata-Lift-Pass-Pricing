@@ -1,0 +1,15 @@
+name: Bun
+
+on:
+    push:
+
+jobs:
+    coverage:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Install Bun
+              run: curl -fsSL https://bun.sh/install | bash

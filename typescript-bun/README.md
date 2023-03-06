@@ -7,6 +7,12 @@
     bun install
     ```
 
+# Wait for mysql docker
+
+```shell
+(timeout 10 docker logs -f mariadb 2>&1 &) | grep -m 1 'ready for connections'
+```
+
 # Start the server
 
 ```shell
@@ -19,8 +25,14 @@ with different port (default is 3000)
 PORT=3001 bun --hot prices.ts
 ```
 
-# Run the (failing, e2e) test
+# Run the coverage e2e test
 
 ```shell
 bun test
+```
+
+# Mutation Tests
+
+```shell
+bun stryker run
 ```
