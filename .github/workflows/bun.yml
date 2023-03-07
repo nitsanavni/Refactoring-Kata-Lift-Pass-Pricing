@@ -1,0 +1,38 @@
+name: Bun
+
+on:
+    push:
+
+jobs:
+    bun-coverage:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Install Bun
+              run: |
+                  curl -fsSL https://bun.sh/install | bash
+                  echo "${HOME}/.bun/bin" >> $GITHUB_PATH
+
+            - name: Install Dependencies
+              working-directory: typescript-bun
+              run: bun install --backend copyfile
+
+            - name: Start and Seed MySQL Database
+              run: |
+                  sudo systemctl start mysql
+                  mysql -uroot -proot < database/initDatabase.sql
+
+            - name: Run Tests
+              working-directory: typescript-bun
+              env:
+                  DB_PASSWORD: root
+              run: bun test
+
+            - name: Check Coverage with Mutation Tests
+              working-directory: typescript-bun
+              env:
+                  DB_PASSWORD: root
+              run: bun stryker run

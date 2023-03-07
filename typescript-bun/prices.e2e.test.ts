@@ -1,29 +1,52 @@
-import { spawn, Subprocess } from "bun";
-import { expect, test, beforeAll, afterAll } from "bun:test";
-import pRetry from "p-retry";
+import { inspect } from "bun";
+import { beforeAll, afterAll, test } from "bun:test";
 
-const PORT = process.env.PORT || "3000";
+import { approval as makeApproval } from "./approvals.js";
+import { product as allCombinations } from "./product.js";
+import { count } from "./counter.js";
 
-let pricesServer: Subprocess;
+import { driver as appDriver } from "./prices.e2e.driver.js";
+
+const app = appDriver({
+    port: +(process.env.PORT || "3007") + (await count()),
+});
 
 beforeAll(async () => {
-    pricesServer = spawn({ cmd: ["bun", "prices.ts"], env: { PORT } });
-    await pRetry(() => fetch(`localhost:${PORT}/prices?type=1jour`), {
-        minTimeout: 30,
-        maxTimeout: 30,
-        factor: 1,
-        retries: 30,
-    });
+    await app.start();
 });
 
 afterAll(() => {
-    pricesServer.kill();
+    app.kill();
 });
 
-test("does something", async () => {
-    expect(
-        await (await fetch(`localhost:${PORT}/prices?type=1jour`)).json()
-    ).toEqual({
-        cost: 123, // change this to make the test pass
-    });
+test("coverage with combination approvals", async () => {
+    const types = ["1jour", "night"];
+    const ages = [undefined, 0, 1, 5, 6, 7, 14, 15, 16, 30, 63, 64, 65, 66];
+    const dates = [
+        undefined,
+        "2019-02-18",
+        "2019-02-25",
+        "2019-03-04",
+        "2019-03-01",
+        "2023-02-27",
+        "2019-09-02",
+        "2019-09-03",
+        "2019-02-11",
+        "2019-02-12",
+        "2018-02-18",
+        "2013-02-18",
+        "2019-03-18",
+    ];
+
+    const approval = makeApproval("e2e-coverage");
+
+    for (const [type, age, date] of allCombinations(types, ages, dates)) {
+        approval.add(inspect(await app.getPrices({ type, age, date })));
+    }
+
+    if (process.env.UPDATE) {
+        await approval.update();
+    } else {
+        await approval.verify();
+    }
 });
