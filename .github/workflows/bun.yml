@@ -29,6 +29,8 @@ jobs:
               run: bun install
 
             - name: seed db
+              env:
+                  DB_PORT: ${{ job.services.mariadb.ports[3306] }}
               working-directory: typescript-bun
               run: |
                   bun seed.ts
