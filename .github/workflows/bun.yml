@@ -35,4 +35,4 @@ jobs:
               working-directory: typescript-bun
               env:
                   DB_PASSWORD: root
-              run: bun stryker run
+              run: bun run stryker run
