@@ -7,13 +7,13 @@ jobs:
     coverage:
         runs-on: ubuntu-latest
 
-        services:
-            mariadb:
-                image: mariadb:10.4
-                ports:
-                    - 3306:3306
-                env:
-                    MYSQL_ROOT_PASSWORD: mysql
+        # services:
+        #     mariadb:
+        #         image: mariadb:10.4
+        #         ports:
+        #             - 3306:3306
+        #         env:
+        #             MYSQL_ROOT_PASSWORD: mysql
 
         steps:
             - name: Checkout code
@@ -29,11 +29,9 @@ jobs:
               run: bun install
 
             - name: seed db
-              env:
-                  DB_PORT: ${{ job.services.mariadb.ports[3306] }}
-              working-directory: typescript-bun
               run: |
-                  bun seed.ts
+                  sudo systemctl start mysql
+                  mysql -uroot -proot < database/initDatabase.sql
 
             - name: run tests
               working-directory: typescript-bun
