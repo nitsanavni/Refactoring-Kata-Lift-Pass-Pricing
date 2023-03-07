@@ -4,7 +4,7 @@ on:
     push:
 
 jobs:
-    coverage:
+    bun-coverage:
         runs-on: ubuntu-latest
 
         steps:
@@ -31,8 +31,8 @@ jobs:
                   DB_PASSWORD: root
               run: bun test
 
-            - name: Mutation Tests
+            - name: Check Coverage with Mutation Tests
               working-directory: typescript-bun
               env:
                   DB_PASSWORD: root
-              run: bun run stryker run
+              run: bun stryker run
