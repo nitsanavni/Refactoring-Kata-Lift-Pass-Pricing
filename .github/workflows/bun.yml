@@ -12,6 +12,8 @@ jobs:
                 image: mariadb:10.4
                 ports:
                     - 3306:3306
+                env:
+                    MYSQL_ROOT_PASSWORD: mysql
 
         steps:
             - name: Checkout code
