@@ -7,19 +7,24 @@ jobs:
     coverage:
         runs-on: ubuntu-latest
 
+        services:
+            mariadb:
+                image: mariadb:10.4
+                ports:
+                    - 3306:3306
+
         steps:
             - name: Checkout code
               uses: actions/checkout@v3
+
+            - name: seed db
+              run: |
+                  docker ps
 
             - name: Install Bun
               run: |
                   curl -fsSL https://bun.sh/install | bash
                   echo "${HOME}/.bun/bin" >> $GITHUB_PATH
-
-            - name: mysql
-              run: |
-                  ./runLocalDatabase.sh
-                  (timeout 10 docker logs -f mariadb 2>&1 &) | grep -m 1 'ready for connections'
 
             - name: Install Dependencies
               working-directory: typescript-bun
