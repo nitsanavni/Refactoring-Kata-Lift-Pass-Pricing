@@ -3,7 +3,7 @@ import mysql from "mysql2/promise";
 const connection = await mysql.createConnection({
     user: "root",
     database: "lift_pass",
-    password: "mysql",
+    password: "root",
 });
 
 Bun.serve({
