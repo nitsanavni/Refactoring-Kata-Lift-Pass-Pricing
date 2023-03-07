@@ -4,17 +4,20 @@ import pRetry from "p-retry";
 export const driver = ({ port = 3000 }) => {
     let server: Subprocess;
 
-    const start = async () => {
-        server = spawn({
-            cmd: ["timeout", "2", "bun", "prices.ts"],
-            env: { PORT: port, ...process.env },
-        });
-        await pRetry(() => fetch(`localhost:${port}/prices?type=1jour`), {
+    const waitForServerToBeUp = () =>
+        pRetry(() => fetch(`localhost:${port}/prices?type=1jour`), {
             minTimeout: 30,
             maxTimeout: 30,
             factor: 1,
             retries: 30,
         });
+
+    const start = async () => {
+        server = spawn({
+            cmd: ["timeout", "2", "bun", "prices.ts"],
+            env: { PORT: port, ...process.env },
+        });
+        await waitForServerToBeUp();
     };
 
     const kill = () => server.kill();
