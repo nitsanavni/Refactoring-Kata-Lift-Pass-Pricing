@@ -7,14 +7,6 @@ jobs:
     coverage:
         runs-on: ubuntu-latest
 
-        # services:
-        #     mariadb:
-        #         image: mariadb:10.4
-        #         ports:
-        #             - 3306:3306
-        #         env:
-        #             MYSQL_ROOT_PASSWORD: mysql
-
         steps:
             - name: Checkout code
               uses: actions/checkout@v3
@@ -28,13 +20,19 @@ jobs:
               working-directory: typescript-bun
               run: bun install
 
-            - name: seed db
+            - name: Start and Seed MySQL Database
               run: |
                   sudo systemctl start mysql
                   mysql -uroot -proot < database/initDatabase.sql
 
-            - name: run tests
+            - name: Run Tests
               working-directory: typescript-bun
               env:
                   DB_PASSWORD: root
               run: bun test
+
+            - name: Mutation Tests
+              working-directory: typescript-bun
+              env:
+                  DB_PASSWORD: root
+              run: bun stryker run
