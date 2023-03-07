@@ -19,7 +19,7 @@ jobs:
 
             - name: seed db
               run: |
-                  docker ps
+                  mysql
 
             - name: Install Bun
               run: |
