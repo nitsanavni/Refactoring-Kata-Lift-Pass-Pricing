@@ -29,9 +29,11 @@ jobs:
               run: bun install
 
             - name: seed db
+              env:
+                  DB_PASSWORD: mysql
               run: |
                   sudo systemctl start mysql
-                  mysql -uroot -proot < database/initDatabase.sql
+                  mysql -uroot -pmysql < database/initDatabase.sql
 
             - name: run tests
               working-directory: typescript-bun
